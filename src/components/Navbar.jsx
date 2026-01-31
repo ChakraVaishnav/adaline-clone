@@ -9,17 +9,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [navbarOpacity, setNavbarOpacity] = useState(1);
+    const [isProductsOpen, setIsProductsOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
+            
+            // Calculate opacity based on scroll position to fade at frame 55
+            const scrollY = window.scrollY;
+            const fadeStartScroll = 300; // Start fading at this scroll position
+            const fadeEndScroll = 920; // Fully transparent at this scroll position (around frame 55)
+            
+            if (scrollY < fadeStartScroll) {
+                setNavbarOpacity(1);
+            } else if (scrollY > fadeEndScroll) {
+                setNavbarOpacity(0);
+            } else {
+                // Linear fade between fadeStart and fadeEnd
+                const opacity = 1 - (scrollY - fadeStartScroll) / (fadeEndScroll - fadeStartScroll);
+                setNavbarOpacity(opacity);
+            }
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (
-        <nav className={`pointer-events-auto sticky top-0 right-0 left-0 h-0 z-50 transition-shadow duration-200 ${isScrolled ? 'shadow-[0_1px_0_0_rgba(0,0,0,0.1)]' : ''}`}>
+        <nav 
+            className="pointer-events-auto fixed top-0 right-0 left-0 h-16 z-50"
+            style={{ 
+                opacity: navbarOpacity,
+                transition: 'opacity 0.3s ease-out'
+            }}
+        >
             <div className="h-16 relative">
                 <div className="absolute inset-0 z-20 flex flex-row items-center justify-between px-6 lg:px-8">
                     {/* Left Side Navigation Links - Desktop Only */}
@@ -27,12 +50,109 @@ export default function Navbar() {
                         style={{
                             marginLeft: "45px",
                         }}>
-                        <div className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity">
-                            <span className="atlas-web-mono text-[#171717] tracking-wide font-light" style={{ fontSize: '15px' }}>PRODUCTS</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#171717]">
-                                <path d="m6 9 6 6 6-6" />
-                            </svg>
+                        {/* Products Dropdown */}
+                        <div 
+                            className="relative"
+                            onMouseEnter={() => setIsProductsOpen(true)}
+                            onMouseLeave={() => setIsProductsOpen(false)}
+                        >
+                            <div className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity">
+                                <span className="atlas-web-mono text-[#171717] tracking-wide font-light" style={{ fontSize: '15px' }}>PRODUCTS</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#171717]">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                            
+                            {/* Dropdown Menu */}
+                            <AnimatePresence>
+                                {isProductsOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute left-0 top-full mt-2 bg-white border border-pebble-100 rounded-lg shadow-lg overflow-hidden"
+                                        style={{ minWidth: '320px' }}
+                                    >
+                                        <div className="divide-pebble-100 border-y-pebble-100 flex flex-col divide-y border-y">
+                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/iterate">
+                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
+                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
+                                                        <div className="absolute inset-0" style={{transform:'none'}}>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                                <path fill="none" stroke="currentColor" d="m32 8 18.764 9.036 4.634 20.304-12.985 16.283H21.587L8.602 37.341l4.634-20.305z" vectorEffect="non-scaling-stroke"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                            <path fill="none" stroke="currentColor" d="m32 8 15.427 5.615 8.208 14.217L52.785 44 40.209 54.553H23.79L11.215 44l-2.85-16.168 8.208-14.217z" vectorEffect="non-scaling-stroke"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div className="-pt-1 flex flex-col justify-center flex-1">
+                                                    <div className="text-sm font-medium">Iterate</div>
+                                                    <div className="text-xs text-pebble-500">Sketch, test and refine</div>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
+                                                    <path d="m9 18 6-6-6-6"></path>
+                                                </svg>
+                                            </a>
+                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/evaluate">
+                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
+                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                            <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" strokeDasharray="5 3" vectorEffect="non-scaling-stroke"></circle>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div className="-pt-1 flex flex-col justify-center flex-1">
+                                                    <div className="text-sm font-medium">Evaluate</div>
+                                                    <div className="text-xs text-pebble-500">Reflect and measure</div>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
+                                                    <path d="m9 18 6-6-6-6"></path>
+                                                </svg>
+                                            </a>
+                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/deploy">
+                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
+                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                            <path fill="none" stroke="currentColor" d="M30.803 8.03c-7.956.39-14.893 4.654-18.965 10.946L19.53 24.8l-8.893-3.75A23.9 23.9 0 0 0 8 32c0 3.945.952 7.667 2.638 10.95l8.892-3.75-7.691 5.825c4.072 6.291 11.01 10.555 18.964 10.946L32 46.4l1.198 9.57c7.954-.392 14.89-4.656 18.963-10.947l-7.69-5.823 8.89 3.749A23.9 23.9 0 0 0 56 32c0-3.944-.951-7.666-2.637-10.948L44.472 24.8l7.69-5.824C48.092 12.685 41.155 8.42 33.2 8.029l-1.198 9.572z" vectorEffect="non-scaling-stroke"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div className="-pt-1 flex flex-col justify-center flex-1">
+                                                    <div className="text-sm font-medium">Deploy</div>
+                                                    <div className="text-xs text-pebble-500">From draft to live</div>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
+                                                    <path d="m9 18 6-6-6-6"></path>
+                                                </svg>
+                                            </a>
+                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/monitor">
+                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
+                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                            <circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" vectorEffect="non-scaling-stroke"></circle>
+                                                        </svg>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
+                                                            <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" strokeDasharray="5 3" vectorEffect="non-scaling-stroke"></circle>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div className="-pt-1 flex flex-col justify-center flex-1">
+                                                    <div className="text-sm font-medium">Monitor</div>
+                                                    <div className="text-xs text-pebble-500">Insights in real time</div>
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
+                                                    <path d="m9 18 6-6-6-6"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
+                        
                         <a href="#pricing" className="atlas-web-mono text-[#171717] tracking-wide font-light hover:opacity-70 transition-opacity" style={{ fontSize: '15px' }}>PRICING</a>
                         <a href="#blog" className="atlas-web-mono text-[#171717] tracking-wide font-light hover:opacity-70 transition-opacity" style={{ fontSize: '15px' }}>BLOG</a>
                     </div>
