@@ -23,9 +23,9 @@ export default function HeroFrames({
 }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
-    const [currentFrame, setCurrentFrame] = useState(2);
+    const [currentFrame, setCurrentFrame] = useState(1);
     const [loadedImages, setLoadedImages] = useState({});
-    const frameIndexRef = useRef(2);
+    const frameIndexRef = useRef(1);
 
 
     // Generate frame path with proper zero-padding
@@ -98,7 +98,7 @@ export default function HeroFrames({
         // Map scroll progress to frame number (starting from 2) - DIRECT, NO LERP
         const frameIndex = Math.min(
             totalFrames,
-            Math.max(2, Math.round(2 + scrollProgress * (totalFrames - 2)))
+            Math.max(1, Math.round(1 + scrollProgress * (totalFrames - 1)))
         );
 
         if (frameIndex !== frameIndexRef.current) {
@@ -106,8 +106,8 @@ export default function HeroFrames({
             setCurrentFrame(frameIndex);
 
             // Preload nearby frames for smooth playback
-            const preloadRange = 8; // Reduced for better performance
-            const preloadStart = Math.max(2, frameIndex - preloadRange);
+            const preloadRange = 10; // Reduced for better performance
+            const preloadStart = Math.max(1, frameIndex - preloadRange);
             const preloadEnd = Math.min(totalFrames, frameIndex + preloadRange);
             preloadFrames(preloadStart, preloadEnd);
         }
@@ -127,7 +127,7 @@ export default function HeroFrames({
         window.addEventListener('scroll', handleScroll, { passive: true });
 
         // Initial frame load
-        preloadFrames(2, 22);
+        preloadFrames(1, 22);
         updateFrame(); // Initial update
 
         return () => {
@@ -157,8 +157,8 @@ export default function HeroFrames({
         const scaledHeight = img.height * scale;
 
         // MOVE IMAGE 10px LEFT & 3px DOWN
-        const offsetX = -4;
-        const offsetY = 1;
+        const offsetX = 0;
+        const offsetY = -0.5;
 
         const x = (width - scaledWidth) / 2 + offsetX;
         const y = (height - scaledHeight) / 2 + offsetY;
@@ -186,13 +186,6 @@ export default function HeroFrames({
                     ref={canvasRef}
                     className="w-full h-full object-cover"
                 />
-
-                {/* Loading indicator for first frame */}
-                {!loadedImages[2] && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#F5F1E8]">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-                    </div>
-                )}
 
                 {/* Debug info (remove in production) */}
                 {process.env.NODE_ENV === 'development' && (

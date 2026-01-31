@@ -3,13 +3,23 @@
 :root {
   --background: #F5F1E8;
   --foreground: #171717;
+  --grid-gutter: 24px;
+  /* Added based on context */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-akkurat), var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono);
+  --font-akkurat: var(--font-akkurat);
+
+  --color-meadow-50: #F5F1E8;
+  --color-meadow-700: #203b14;
+  --color-pebble-50: #FFFFFF;
+  --color-pebble-100: #E5E1D8;
+  --color-pebble-200: #D4C5B0;
+  --color-pebble-400: #B0A090;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,18 +52,53 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1a1a1a;
+  border-left: 1px solid #333;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
+  background: #71717a;
+  border-radius: 7px;
+  border: 3px solid #1a1a1a;
+  /* Creates padding effect */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #a1a1aa;
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  background-color: #1a1a1a;
+  color: #71717a;
+  height: 14px;
+}
+
+/* Custom Button Style */
+.atlas-web-mono {
+  font-family: var(--font-fragment-mono);
+  letter-spacing: .02em;
+  font-size: 14px;
+  font-variant-caps: all-small-caps;
+  line-height: 14px;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  width: max-content;
 }
