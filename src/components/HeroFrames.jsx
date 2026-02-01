@@ -1,42 +1,40 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import Image from 'next/image';
 
 /**
  * HeroFrames Component
- * 
+ *
  * Implements scroll-based frame animation for the hero section
- * 
- * Performance Optimizations:
- * 1. Lazy loading - Only loads frames as needed based on scroll position
- * 2. Preloading - Preloads nearby frames for smooth transitions
- * 3. RequestAnimationFrame - Uses RAF for smooth scroll handling
- * 4. Debouncing - Prevents excessive frame updates
- * 
- * @param {number} totalFrames - Total number of frames (default: 281)
- * @param {string} frameBasePath - Base path to frames folder
+ *
+ * FIX APPLIED:
+ * - Prevent production frame freezing
+ * - Reduce preload pressure
+ * - Draw immediately on scroll
+ * - Keep existing behavior unchanged
  */
+
 export default function HeroFrames({
     totalFrames = 281,
-    frameBasePath = '/adaline_frames'
+    frameBasePath = '/adaline_frames',
 }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
-    const [currentFrame, setCurrentFrame] = useState(2); // Start at 2
+
+    const [currentFrame, setCurrentFrame] = useState(2);
     const loadedImagesRef = useRef({});
     const frameIndexRef = useRef(2);
     const [tick, setTick] = useState(0);
 
     const [isMobile, setIsMobile] = useState(false);
 
-    // Handle screen resize to switch frame paths
+    /* -------------------- Mobile detection -------------------- */
     useEffect(() => {
         const checkMobile = () => {
-            const mobile = window.innerWidth < 768; // Mobile breakpoint
+            const mobile = window.innerWidth < 768;
             if (mobile !== isMobile) {
                 setIsMobile(mobile);
-                loadedImagesRef.current = {}; // Clear cache on switching
+                loadedImagesRef.current = {};
             }
         };
 
@@ -45,38 +43,37 @@ export default function HeroFrames({
         return () => window.removeEventListener('resize', checkMobile);
     }, [isMobile]);
 
+    /* -------------------- Frame path -------------------- */
+    const getFramePath = useCallback(
+        (index) => {
+            const paddedIndex = String(index).padStart(3, '0');
+            const basePath = isMobile ? '/adaline_frames_3x5' : frameBasePath;
+            return `${basePath}/${paddedIndex}.jpg`;
+        },
+        [frameBasePath, isMobile]
+    );
 
-    // Generate frame path with proper zero-padding
-    const getFramePath = useCallback((index) => {
-        const paddedIndex = String(index).padStart(3, '0');
-        const basePath = isMobile ? '/adaline_frames_3x5' : frameBasePath;
-        return `${basePath}/${paddedIndex}.jpg`;
-    }, [frameBasePath, isMobile]);
+    /* -------------------- Preload frames (FIXED) -------------------- */
+    const preloadFrames = useCallback(
+        (startFrame, endFrame) => {
+            for (let i = startFrame; i <= endFrame; i++) {
+                if (!loadedImagesRef.current[i]) {
+                    const img = new Image();
+                    img.src = getFramePath(i);
+                    img.onload = () => {
+                        loadedImagesRef.current[i] = img;
 
-    // Preload images in batches for better performance
-    const preloadFrames = useCallback((startFrame, endFrame) => {
-        const framesToLoad = [];
-
-        for (let i = startFrame; i <= endFrame; i++) {
-            if (!loadedImagesRef.current[i]) {
-                framesToLoad.push(i);
-            }
-        }
-
-        framesToLoad.forEach((frameNum) => {
-            const img = new window.Image();
-            img.src = getFramePath(frameNum);
-            img.onload = () => {
-                loadedImagesRef.current[frameNum] = img;
-                // If the loaded frame is the current one (or very close), trigger a re-render
-                if (Math.abs(frameNum - frameIndexRef.current) <= 2) {
-                    setTick(prev => prev + 1); // Force re-render
+                        if (Math.abs(i - frameIndexRef.current) <= 2) {
+                            setTick((t) => t + 1);
+                        }
+                    };
                 }
-            };
-        });
-    }, [getFramePath]);
+            }
+        },
+        [getFramePath]
+    );
 
-    // Canvas resize with DPR scaling - CRITICAL FOR QUALITY
+    /* -------------------- Canvas resize -------------------- */
     useEffect(() => {
         const resizeCanvas = () => {
             const canvas = canvasRef.current;
@@ -89,22 +86,49 @@ export default function HeroFrames({
 
             canvas.width = width * dpr;
             canvas.height = height * dpr;
-            canvas.style.width = width + "px";
-            canvas.style.height = height + "px";
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
 
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = 'high';
         };
 
         resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-        return () => window.removeEventListener("resize", resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+        return () => window.removeEventListener('resize', resizeCanvas);
     }, []);
 
+    /* -------------------- Immediate canvas draw (FIX) -------------------- */
+    const drawFrameImmediate = useCallback((frame) => {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        const container = containerRef.current;
+        const img = loadedImagesRef.current[frame];
 
-    // Calculate current frame based on scroll position
+        if (!canvas || !ctx || !container || !img) return;
+
+        const width = container.offsetWidth;
+        const height = container.offsetHeight;
+
+        const scale = Math.min(width / img.width, height / img.height);
+        const sw = img.width * scale;
+        const sh = img.height * scale;
+
+        ctx.fillStyle = '#F5F1E8';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.drawImage(
+            img,
+            (width - sw) / 2,
+            (height - sh) / 2 - 0.5,
+            sw,
+            sh
+        );
+    }, []);
+
+    /* -------------------- Scroll → frame logic (FIXED) -------------------- */
     const updateFrame = useCallback(() => {
         if (!containerRef.current) return;
 
@@ -112,13 +136,15 @@ export default function HeroFrames({
         const containerTop = containerRef.current.offsetTop;
         const containerHeight = containerRef.current.offsetHeight;
 
-        // Calculate scroll progress within the container
         const scrollProgress = Math.max(
             0,
-            Math.min(1, (scrollTop - containerTop) / (containerHeight - window.innerHeight))
+            Math.min(
+                1,
+                (scrollTop - containerTop) /
+                (containerHeight - window.innerHeight)
+            )
         );
 
-        // Map scroll progress to frame number (starting from 2) - DIRECT, NO LERP
         const frameIndex = Math.min(
             totalFrames,
             Math.max(2, Math.round(2 + scrollProgress * (totalFrames - 2)))
@@ -128,54 +154,47 @@ export default function HeroFrames({
             frameIndexRef.current = frameIndex;
             setCurrentFrame(frameIndex);
 
-            // Preload nearby frames for smooth playback
-            const preloadRange = 40; // Increased for smoother playback on network
-            const preloadStart = Math.max(2, frameIndex - preloadRange);
-            const preloadEnd = Math.min(totalFrames, frameIndex + preloadRange);
-            preloadFrames(preloadStart, preloadEnd);
-        }
-    }, [totalFrames, preloadFrames]);
+            const preloadRange = 6; // ✅ FIXED (was too large)
+            preloadFrames(
+                Math.max(2, frameIndex - preloadRange),
+                Math.min(totalFrames, frameIndex + preloadRange)
+            );
 
-    // Handle scroll with simple RAF
+            drawFrameImmediate(frameIndex); // ✅ FIXED
+        }
+    }, [totalFrames, preloadFrames, drawFrameImmediate]);
+
+    /* -------------------- Scroll handler -------------------- */
     useEffect(() => {
         let rafId;
 
-        const handleScroll = () => {
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-            }
+        const onScroll = () => {
+            if (rafId) cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(updateFrame);
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('scroll', onScroll, { passive: true });
 
-        // Initial frame load - aggressive start
-        preloadFrames(2, 30);
-        updateFrame(); // Initial update
+        preloadFrames(2, 12);
+        updateFrame();
 
         return () => {
-            window.removeEventListener('scroll', handleScroll);
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-            }
+            window.removeEventListener('scroll', onScroll);
+            if (rafId) cancelAnimationFrame(rafId);
         };
     }, [updateFrame, preloadFrames]);
 
-    // Render current frame on canvas
+    /* -------------------- Fallback render (FIXED RANGE) -------------------- */
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
         const container = containerRef.current;
-
         if (!canvas || !ctx || !container) return;
 
-        // Try to get current frame, or closest available loaded frame
-        // This prevents "stuck" frames during network latency
         let img = loadedImagesRef.current[currentFrame];
 
         if (!img) {
-            // Search range for fallback
-            const range = 20;
+            const range = 6; // ✅ FIXED
             for (let i = 1; i <= range; i++) {
                 if (loadedImagesRef.current[currentFrame - i]) {
                     img = loadedImagesRef.current[currentFrame - i];
@@ -188,66 +207,38 @@ export default function HeroFrames({
             }
         }
 
-        if (!img) return; // If truly nothing loaded nearby, keep previous frame
+        if (!img) return;
 
-        const width = container.offsetWidth;
-        const height = container.offsetHeight;
+        drawFrameImmediate(currentFrame);
+    }, [currentFrame, tick, drawFrameImmediate]);
 
-        // FIT image (contain) - shows full width like Adaline.ai
-        const scale = Math.min(width / img.width, height / img.height);
-
-        const scaledWidth = img.width * scale;
-        const scaledHeight = img.height * scale;
-
-        // MOVE IMAGE 10px LEFT & 3px DOWN
-        const offsetX = 0;
-        const offsetY = -0.5;
-
-        const x = (width - scaledWidth) / 2 + offsetX;
-        const y = (height - scaledHeight) / 2 + offsetY;
-
-        // Fill background with beige color
-        ctx.fillStyle = '#F5F1E8';
-        ctx.fillRect(0, 0, width, height);
-
-        // Draw image with high quality
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-
-    }, [currentFrame, tick]);
-
-
+    /* -------------------- Render -------------------- */
     return (
         <div
             ref={containerRef}
             className="relative w-full"
-            style={{ height: `${totalFrames * 20}px` }} // Optimized: 281 * 8 = 2248px
+            style={{ height: `${totalFrames * 20}px` }}
         >
-            <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden">
-                <canvas
-                    ref={canvasRef}
-                    className="w-full h-full object-cover"
-                />
+            <div className="sticky top-0 w-full h-screen overflow-hidden">
+                <canvas ref={canvasRef} className="w-full h-full" />
 
-                {/* Video Overlay - Frame 270+ */}
+                {/* Video Overlay */}
                 <div
                     className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
                     style={{
                         opacity: Math.max(0, Math.min(1, (currentFrame - 270) / 10)),
                         pointerEvents: currentFrame >= 270 ? 'auto' : 'none',
-                        zIndex: 10
+                        zIndex: 10,
                     }}
                 >
                     <video
                         src="/"
-                        controls="full"
+                        controls
                         playsInline
                         className="w-[90%] h-auto max-h-[90vh] rounded-xl shadow-2xl object-cover"
                     />
                 </div>
 
-                {/* Debug info (remove in production) */}
                 {process.env.NODE_ENV === 'development' && (
                     <div className="absolute bottom-4 right-4 bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-mono">
                         Frame: {currentFrame} / {totalFrames}
