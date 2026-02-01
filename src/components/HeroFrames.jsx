@@ -154,7 +154,7 @@ export default function HeroFrames({
             frameIndexRef.current = frameIndex;
             setCurrentFrame(frameIndex);
 
-            const preloadRange = 6; // ✅ FIXED (was too large)
+            const preloadRange = 100; // ✅ FIXED (was too large)
             preloadFrames(
                 Math.max(2, frameIndex - preloadRange),
                 Math.min(totalFrames, frameIndex + preloadRange)
