@@ -82,7 +82,7 @@ export default function HeroFrames({
 
             const dpr = window.devicePixelRatio || 1;
             const width = container.offsetWidth;
-            const height = container.offsetHeight;
+            const height = window.innerHeight; // Use viewport height, not scroll height
 
             canvas.width = width * dpr;
             canvas.height = height * dpr;
@@ -101,32 +101,45 @@ export default function HeroFrames({
     }, []);
 
     /* -------------------- Immediate canvas draw (FIX) -------------------- */
-    const drawFrameImmediate = useCallback((frame) => {
+    const drawFrameImmediate = useCallback((frame, imageOverride) => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
         const container = containerRef.current;
-        const img = loadedImagesRef.current[frame];
+        const img = imageOverride || loadedImagesRef.current[frame];
 
         if (!canvas || !ctx || !container || !img) return;
 
         const width = container.offsetWidth;
-        const height = container.offsetHeight;
+        const height = window.innerHeight; // Draw relative to viewport
 
-        const scale = Math.min(width / img.width, height / img.height);
+        // --- DIMENSIONS & POSITIONING CONFIG ---
+        // Adjust these to change how the image fits
+        const desktopScale = 1.0;  // Scale for desktop
+        const mobileScale = 1.25;  // Scale for mobile
+
+        const desktopOffsetY = -0.5; // Pixels to move up/down on desktop
+        const mobileOffsetY = 0;     // Pixels to move up/down on mobile (e.g. 40)
+
+        const currentScale = isMobile ? mobileScale : desktopScale;
+        const currentOffsetY = isMobile ? mobileOffsetY : desktopOffsetY;
+
+        const scale = Math.min(width / img.width, height / img.height) * currentScale;
         const sw = img.width * scale;
         const sh = img.height * scale;
 
         ctx.fillStyle = '#F5F1E8';
         ctx.fillRect(0, 0, width, height);
 
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(
             img,
             (width - sw) / 2,
-            (height - sh) / 2 - 0.5,
+            (height - sh) / 2 + currentOffsetY,
             sw,
             sh
         );
-    }, []);
+    }, [isMobile]);
 
     /* -------------------- Scroll → frame logic (FIXED) -------------------- */
     const updateFrame = useCallback(() => {
@@ -154,13 +167,13 @@ export default function HeroFrames({
             frameIndexRef.current = frameIndex;
             setCurrentFrame(frameIndex);
 
-            const preloadRange = 100; // ✅ FIXED (was too large)
+            const preloadRange = 30; // Reduced to prevent network congestion
             preloadFrames(
                 Math.max(2, frameIndex - preloadRange),
                 Math.min(totalFrames, frameIndex + preloadRange)
             );
 
-            drawFrameImmediate(frameIndex); // ✅ FIXED
+            drawFrameImmediate(frameIndex);
         }
     }, [totalFrames, preloadFrames, drawFrameImmediate]);
 
@@ -209,7 +222,7 @@ export default function HeroFrames({
 
         if (!img) return;
 
-        drawFrameImmediate(currentFrame);
+        drawFrameImmediate(currentFrame, img);
     }, [currentFrame, tick, drawFrameImmediate]);
 
     /* -------------------- Render -------------------- */
