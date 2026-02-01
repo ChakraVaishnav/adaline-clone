@@ -24,7 +24,7 @@ export default function HeroFrames({
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [currentFrame, setCurrentFrame] = useState(1);
-    const [loadedImages, setLoadedImages] = useState({});
+    const loadedImagesRef = useRef({});
     const frameIndexRef = useRef(1);
 
 
@@ -39,7 +39,7 @@ export default function HeroFrames({
         const framesToLoad = [];
 
         for (let i = startFrame; i <= endFrame; i++) {
-            if (!loadedImages[i]) {
+            if (!loadedImagesRef.current[i]) {
                 framesToLoad.push(i);
             }
         }
@@ -48,10 +48,14 @@ export default function HeroFrames({
             const img = new window.Image();
             img.src = getFramePath(frameNum);
             img.onload = () => {
-                setLoadedImages((prev) => ({ ...prev, [frameNum]: img }));
+                loadedImagesRef.current[frameNum] = img;
+                // If the loaded frame is the current one (or very close), trigger a re-render
+                if (Math.abs(frameNum - frameIndexRef.current) <= 2) {
+                    setCurrentFrame(prev => prev); // Force re-render
+                }
             };
         });
-    }, [loadedImages, getFramePath]);
+    }, [getFramePath]);
 
     // Canvas resize with DPR scaling - CRITICAL FOR QUALITY
     useEffect(() => {
@@ -148,18 +152,18 @@ export default function HeroFrames({
 
         // Try to get current frame, or closest available loaded frame
         // This prevents "stuck" frames during network latency
-        let img = loadedImages[currentFrame];
+        let img = loadedImagesRef.current[currentFrame];
 
         if (!img) {
             // Search range for fallback
             const range = 20;
             for (let i = 1; i <= range; i++) {
-                if (loadedImages[currentFrame - i]) {
-                    img = loadedImages[currentFrame - i];
+                if (loadedImagesRef.current[currentFrame - i]) {
+                    img = loadedImagesRef.current[currentFrame - i];
                     break;
                 }
-                if (loadedImages[currentFrame + i]) {
-                    img = loadedImages[currentFrame + i];
+                if (loadedImagesRef.current[currentFrame + i]) {
+                    img = loadedImagesRef.current[currentFrame + i];
                     break;
                 }
             }
@@ -192,7 +196,7 @@ export default function HeroFrames({
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
-    }, [currentFrame, loadedImages]);
+    }, [currentFrame]);
 
 
     return (
