@@ -114,8 +114,8 @@ export default function HeroFrames({
 
         // --- DIMENSIONS & POSITIONING CONFIG ---
         // Adjust these to change how the image fits
-        const desktopScale = 1.0;  // Scale for desktop
-        const mobileScale = 1.25;  // Scale for mobile
+        const desktopScale = 1.25;  // Scale for desktop
+        const mobileScale = 1.2;  // Scale for mobile
 
         const desktopOffsetY = -0.5; // Pixels to move up/down on desktop
         const mobileOffsetY = 0;     // Pixels to move up/down on mobile (e.g. 40)
