@@ -167,7 +167,7 @@ export default function HeroFrames({
             frameIndexRef.current = frameIndex;
             setCurrentFrame(frameIndex);
 
-            const preloadRange = 30; // Reduced to prevent network congestion
+            const preloadRange = 6; // Reduced to prevent network congestion
             preloadFrames(
                 Math.max(2, frameIndex - preloadRange),
                 Math.min(totalFrames, frameIndex + preloadRange)
