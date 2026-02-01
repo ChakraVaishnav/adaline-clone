@@ -23,16 +23,35 @@ export default function HeroFrames({
 }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
-    const [currentFrame, setCurrentFrame] = useState(1);
+    const [currentFrame, setCurrentFrame] = useState(2); // Start at 2
     const loadedImagesRef = useRef({});
-    const frameIndexRef = useRef(1);
+    const frameIndexRef = useRef(2);
+    const [tick, setTick] = useState(0);
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Handle screen resize to switch frame paths
+    useEffect(() => {
+        const checkMobile = () => {
+            const mobile = window.innerWidth < 768; // Mobile breakpoint
+            if (mobile !== isMobile) {
+                setIsMobile(mobile);
+                loadedImagesRef.current = {}; // Clear cache on switching
+            }
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, [isMobile]);
 
 
     // Generate frame path with proper zero-padding
     const getFramePath = useCallback((index) => {
         const paddedIndex = String(index).padStart(3, '0');
-        return `${frameBasePath}/${paddedIndex}.jpg`;
-    }, [frameBasePath]);
+        const basePath = isMobile ? '/adaline_frames_3x5' : frameBasePath;
+        return `${basePath}/${paddedIndex}.jpg`;
+    }, [frameBasePath, isMobile]);
 
     // Preload images in batches for better performance
     const preloadFrames = useCallback((startFrame, endFrame) => {
@@ -51,7 +70,7 @@ export default function HeroFrames({
                 loadedImagesRef.current[frameNum] = img;
                 // If the loaded frame is the current one (or very close), trigger a re-render
                 if (Math.abs(frameNum - frameIndexRef.current) <= 2) {
-                    setCurrentFrame(prev => prev); // Force re-render
+                    setTick(prev => prev + 1); // Force re-render
                 }
             };
         });
@@ -102,7 +121,7 @@ export default function HeroFrames({
         // Map scroll progress to frame number (starting from 2) - DIRECT, NO LERP
         const frameIndex = Math.min(
             totalFrames,
-            Math.max(1, Math.round(1 + scrollProgress * (totalFrames - 1)))
+            Math.max(2, Math.round(2 + scrollProgress * (totalFrames - 2)))
         );
 
         if (frameIndex !== frameIndexRef.current) {
@@ -111,7 +130,7 @@ export default function HeroFrames({
 
             // Preload nearby frames for smooth playback
             const preloadRange = 40; // Increased for smoother playback on network
-            const preloadStart = Math.max(1, frameIndex - preloadRange);
+            const preloadStart = Math.max(2, frameIndex - preloadRange);
             const preloadEnd = Math.min(totalFrames, frameIndex + preloadRange);
             preloadFrames(preloadStart, preloadEnd);
         }
@@ -131,7 +150,7 @@ export default function HeroFrames({
         window.addEventListener('scroll', handleScroll, { passive: true });
 
         // Initial frame load - aggressive start
-        preloadFrames(1, 30);
+        preloadFrames(2, 30);
         updateFrame(); // Initial update
 
         return () => {
@@ -196,7 +215,7 @@ export default function HeroFrames({
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
-    }, [currentFrame]);
+    }, [currentFrame, tick]);
 
 
     return (
@@ -210,6 +229,23 @@ export default function HeroFrames({
                     ref={canvasRef}
                     className="w-full h-full object-cover"
                 />
+
+                {/* Video Overlay - Frame 270+ */}
+                <div
+                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
+                    style={{
+                        opacity: Math.max(0, Math.min(1, (currentFrame - 270) / 10)),
+                        pointerEvents: currentFrame >= 270 ? 'auto' : 'none',
+                        zIndex: 10
+                    }}
+                >
+                    <video
+                        src="/"
+                        controls="full"
+                        playsInline
+                        className="w-[90%] h-auto max-h-[90vh] rounded-xl shadow-2xl object-cover"
+                    />
+                </div>
 
                 {/* Debug info (remove in production) */}
                 {process.env.NODE_ENV === 'development' && (
