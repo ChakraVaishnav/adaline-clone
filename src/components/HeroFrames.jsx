@@ -106,7 +106,7 @@ export default function HeroFrames({
             setCurrentFrame(frameIndex);
 
             // Preload nearby frames for smooth playback
-            const preloadRange = 10; // Reduced for better performance
+            const preloadRange = 40; // Increased for smoother playback on network
             const preloadStart = Math.max(1, frameIndex - preloadRange);
             const preloadEnd = Math.min(totalFrames, frameIndex + preloadRange);
             preloadFrames(preloadStart, preloadEnd);
@@ -126,8 +126,8 @@ export default function HeroFrames({
 
         window.addEventListener('scroll', handleScroll, { passive: true });
 
-        // Initial frame load
-        preloadFrames(1, 22);
+        // Initial frame load - aggressive start
+        preloadFrames(1, 30);
         updateFrame(); // Initial update
 
         return () => {
@@ -142,10 +142,30 @@ export default function HeroFrames({
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
-        const img = loadedImages[currentFrame];
         const container = containerRef.current;
 
-        if (!canvas || !ctx || !img || !container) return;
+        if (!canvas || !ctx || !container) return;
+
+        // Try to get current frame, or closest available loaded frame
+        // This prevents "stuck" frames during network latency
+        let img = loadedImages[currentFrame];
+
+        if (!img) {
+            // Search range for fallback
+            const range = 20;
+            for (let i = 1; i <= range; i++) {
+                if (loadedImages[currentFrame - i]) {
+                    img = loadedImages[currentFrame - i];
+                    break;
+                }
+                if (loadedImages[currentFrame + i]) {
+                    img = loadedImages[currentFrame + i];
+                    break;
+                }
+            }
+        }
+
+        if (!img) return; // If truly nothing loaded nearby, keep previous frame
 
         const width = container.offsetWidth;
         const height = container.offsetHeight;
