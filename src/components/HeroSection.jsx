@@ -28,15 +28,15 @@ export default function HeroSection() {
     useEffect(() => {
         const handleScroll = () => {
             const scrollY = window.scrollY;
-            
+
             // Mask fade from right to left: Frame 65 at ~1087 to Frame 90 at ~1600
             const fadeStartScroll = 1087; // Frame 65
             const fadeEndScroll = 1600; // Frame 90
-            
+
             // Scale reduction: starts from first scroll to Frame 90
             const scaleStartScroll = 0; // Start immediately
             const scaleEndScroll = 1600; // Frame 90
-            
+
             // Calculate mask position (fade from right to left)
             if (scrollY < fadeStartScroll) {
                 setMaskPosition(100); // Fully visible
@@ -49,7 +49,7 @@ export default function HeroSection() {
                 setMaskPosition(100 - (progress * 100)); // From 100% to 0%
                 setContentOpacity(1 - (progress * 0.5)); // From 1 to 0.5 (subtle overall fade)
             }
-            
+
             // Calculate scale (starts from first scroll)
             if (scrollY < scaleStartScroll) {
                 setContentScale(1);
@@ -60,7 +60,7 @@ export default function HeroSection() {
                 setContentScale(1 - (scaleProgress * 0.3)); // Scale from 1 to 0.7
             }
         };
-        
+
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -90,9 +90,9 @@ export default function HeroSection() {
             </div>
 
             {/* Content Overlay - Fixed Position */}
-            <div 
+            <div
                 className="fixed top-0 left-0 right-0 z-10 flex flex-col items-center justify-start pt-[175px]"
-                style={{ 
+                style={{
                     opacity: contentOpacity,
                     maskImage: `linear-gradient(to right, black 0%, black ${maskPosition - 20}%, transparent ${maskPosition + 20}%, transparent 100%)`,
                     WebkitMaskImage: `linear-gradient(to right, black 0%, black ${maskPosition - 20}%, transparent ${maskPosition + 20}%, transparent 100%)`,
@@ -100,58 +100,58 @@ export default function HeroSection() {
                     pointerEvents: maskPosition === 0 ? 'none' : 'auto'
                 }}
             >
-                <div 
+                <div
                     style={{
                         transform: `scale(${contentScale})`,
                         transformOrigin: 'center center',
                         transition: 'transform 0.3s ease-out'
                     }}
                 >
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        variants={staggerChildren}
-                        initial="initial"
-                        animate="animate"
-                        className="text-center"
-
-                    >
-                        <motion.h1
-                            variants={fadeInUp}
-                            className="max-w-4xl mx-auto"
-                            style={{
-                                fontSize: "43px",
-                                letterSpacing: "-1.63264px",
-                                lineHeight: "40.0459px",
-                                color: "rgb(10, 29, 8)",
-                                fontFamily: 'akkurat, "akkurat Fallback", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-                                fontWeight: "550",
-                                marginBottom: "45px",
-                                marginTop: "105px",
-                                textAlign: "center",
-                                display: "inline-block" // Using inline-block to respect text-center but allow transforms if needed
-                            }}
-                        >
-                            The single platform to iterate,
-                            <br />
-                            evaluate, deploy, and monitor AI agents
-                        </motion.h1>
-
-                        {/* Trusted By Section */}
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                         <motion.div
-                            variants={fadeInUp}
-                            className="mt-8"
+                            variants={staggerChildren}
+                            initial="initial"
+                            animate="animate"
+                            className="text-center"
+
                         >
-                            <p className="atlas-web-mono text-meadow-900/50 mb-2"
-                            style={{
-                                fontSize: '15px',
-                                fontWeight:'lighter',
-                                marginBottom: '20px',
-                                color: "color-mix(in oklab, #0a1d08 50%, transparent)" 
-                            }}>TRUSTED BY</p>
-                            <TrustedCompanies />
+                            <motion.h1
+                                variants={fadeInUp}
+                                className="max-w-4xl mx-auto"
+                                style={{
+                                    fontSize: "clamp(28px, 6vw, 43px)",
+                                    letterSpacing: "-1.63264px",
+                                    lineHeight: "clamp(32px, 6vw, 40.0459px)",
+                                    color: "rgb(10, 29, 8)",
+                                    fontFamily: 'akkurat, "akkurat Fallback", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+                                    fontWeight: "550",
+                                    marginBottom: "45px",
+                                    marginTop: "105px",
+                                    textAlign: "center",
+                                    display: "inline-block" // Using inline-block to respect text-center but allow transforms if needed
+                                }}
+                            >
+                                The single platform to iterate,
+                                <br />
+                                evaluate, deploy, and monitor AI agents
+                            </motion.h1>
+
+                            {/* Trusted By Section */}
+                            <motion.div
+                                variants={fadeInUp}
+                                className="mt-8"
+                            >
+                                <p className="atlas-web-mono text-meadow-900/50 mb-2"
+                                    style={{
+                                        fontSize: '15px',
+                                        fontWeight: 'lighter',
+                                        marginBottom: '20px',
+                                        color: "color-mix(in oklab, #0a1d08 50%, transparent)"
+                                    }}>TRUSTED BY</p>
+                                <TrustedCompanies />
+                            </motion.div>
                         </motion.div>
-                    </motion.div>
-                </div>
+                    </div>
                 </div>
             </div>
         </section>

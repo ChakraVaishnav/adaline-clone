@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductsMenu from './ProductsMenu';
 
 /**
  * Navbar Component - Exact Adaline.ai Clone
@@ -15,12 +16,12 @@ export default function Navbar() {
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
-            
+
             // Calculate opacity based on scroll position to fade at frame 55
             const scrollY = window.scrollY;
             const fadeStartScroll = 300; // Start fading at this scroll position
             const fadeEndScroll = 920; // Fully transparent at this scroll position (around frame 55)
-            
+
             if (scrollY < fadeStartScroll) {
                 setNavbarOpacity(1);
             } else if (scrollY > fadeEndScroll) {
@@ -36,9 +37,9 @@ export default function Navbar() {
     }, []);
 
     return (
-        <nav 
+        <nav
             className="pointer-events-auto fixed top-0 right-0 left-0 h-16 z-50"
-            style={{ 
+            style={{
                 opacity: navbarOpacity,
                 transition: 'opacity 0.3s ease-out'
             }}
@@ -51,7 +52,7 @@ export default function Navbar() {
                             marginLeft: "45px",
                         }}>
                         {/* Products Dropdown */}
-                        <div 
+                        <div
                             className="relative"
                             onMouseEnter={() => setIsProductsOpen(true)}
                             onMouseLeave={() => setIsProductsOpen(false)}
@@ -62,7 +63,7 @@ export default function Navbar() {
                                     <path d="m6 9 6 6 6-6" />
                                 </svg>
                             </div>
-                            
+
                             {/* Dropdown Menu */}
                             <AnimatePresence>
                                 {isProductsOpen && (
@@ -71,88 +72,14 @@ export default function Navbar() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.2 }}
-                                        className="absolute left-0 top-full mt-2 bg-white border border-pebble-100 rounded-lg shadow-lg overflow-hidden"
-                                        style={{ minWidth: '320px' }}
+                                        className="fixed top-16 left-0 right-0 w-full z-40"
                                     >
-                                        <div className="divide-pebble-100 border-y-pebble-100 flex flex-col divide-y border-y">
-                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/iterate">
-                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
-                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
-                                                        <div className="absolute inset-0" style={{transform:'none'}}>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                                <path fill="none" stroke="currentColor" d="m32 8 18.764 9.036 4.634 20.304-12.985 16.283H21.587L8.602 37.341l4.634-20.305z" vectorEffect="non-scaling-stroke"></path>
-                                                            </svg>
-                                                        </div>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                            <path fill="none" stroke="currentColor" d="m32 8 15.427 5.615 8.208 14.217L52.785 44 40.209 54.553H23.79L11.215 44l-2.85-16.168 8.208-14.217z" vectorEffect="non-scaling-stroke"></path>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div className="-pt-1 flex flex-col justify-center flex-1">
-                                                    <div className="text-sm font-medium">Iterate</div>
-                                                    <div className="text-xs text-pebble-500">Sketch, test and refine</div>
-                                                </div>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
-                                                    <path d="m9 18 6-6-6-6"></path>
-                                                </svg>
-                                            </a>
-                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/evaluate">
-                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
-                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                            <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" strokeDasharray="5 3" vectorEffect="non-scaling-stroke"></circle>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div className="-pt-1 flex flex-col justify-center flex-1">
-                                                    <div className="text-sm font-medium">Evaluate</div>
-                                                    <div className="text-xs text-pebble-500">Reflect and measure</div>
-                                                </div>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
-                                                    <path d="m9 18 6-6-6-6"></path>
-                                                </svg>
-                                            </a>
-                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/deploy">
-                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
-                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                            <path fill="none" stroke="currentColor" d="M30.803 8.03c-7.956.39-14.893 4.654-18.965 10.946L19.53 24.8l-8.893-3.75A23.9 23.9 0 0 0 8 32c0 3.945.952 7.667 2.638 10.95l8.892-3.75-7.691 5.825c4.072 6.291 11.01 10.555 18.964 10.946L32 46.4l1.198 9.57c7.954-.392 14.89-4.656 18.963-10.947l-7.69-5.823 8.89 3.749A23.9 23.9 0 0 0 56 32c0-3.944-.951-7.666-2.637-10.948L44.472 24.8l7.69-5.824C48.092 12.685 41.155 8.42 33.2 8.029l-1.198 9.572z" vectorEffect="non-scaling-stroke"></path>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div className="-pt-1 flex flex-col justify-center flex-1">
-                                                    <div className="text-sm font-medium">Deploy</div>
-                                                    <div className="text-xs text-pebble-500">From draft to live</div>
-                                                </div>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
-                                                    <path d="m9 18 6-6-6-6"></path>
-                                                </svg>
-                                            </a>
-                                            <a className="flex flex-row items-center gap-4 py-3 px-4 hover:bg-pebble-50 transition-colors" href="/monitor">
-                                                <div className="relative flex aspect-square shrink-0 items-center justify-center size-9">
-                                                    <div className="absolute -inset-1/6" style={{transform:'none'}}>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                            <circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" vectorEffect="non-scaling-stroke"></circle>
-                                                        </svg>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="absolute inset-0" strokeWidth="1">
-                                                            <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" strokeDasharray="5 3" vectorEffect="non-scaling-stroke"></circle>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div className="-pt-1 flex flex-col justify-center flex-1">
-                                                    <div className="text-sm font-medium">Monitor</div>
-                                                    <div className="text-xs text-pebble-500">Insights in real time</div>
-                                                </div>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-pebble-500 mr-1 ml-auto h-4 w-4">
-                                                    <path d="m9 18 6-6-6-6"></path>
-                                                </svg>
-                                            </a>
-                                        </div>
+                                        <ProductsMenu />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
-                        
+
                         <a href="#pricing" className="atlas-web-mono text-[#171717] tracking-wide font-light hover:opacity-70 transition-opacity" style={{ fontSize: '15px' }}>PRICING</a>
                         <a href="#blog" className="atlas-web-mono text-[#171717] tracking-wide font-light hover:opacity-70 transition-opacity" style={{ fontSize: '15px' }}>BLOG</a>
                     </div>
@@ -214,8 +141,8 @@ export default function Navbar() {
 
                         {/* Mobile Only Buttons */}
                         <div className="flex min-[900px]:hidden items-center gap-4">
-                            {/* Mobile DEMO Button */}
-                            <button className="inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-[20px] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none shrink-0 h-10 gap-2 border border-pebble-200 text-meadow-700 hover:text-meadow-700 hover:border-[#C4B5A0] disabled:border-pebble-100 disabled:bg-transparent disabled:text-pebble-400 ring-offset-meadow-50 focus-visible:ring-meadow-700 px-6 atlas-web-mono bg-pebble-50"
+                            {/* Mobile DEMO Button - Visible 510px-900px */}
+                            <button className="max-[510px]:hidden inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-[20px] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none shrink-0 h-10 gap-2 border border-pebble-200 text-meadow-700 hover:text-meadow-700 hover:border-[#C4B5A0] disabled:border-pebble-100 disabled:bg-transparent disabled:text-pebble-400 ring-offset-meadow-50 focus-visible:ring-meadow-700 px-6 atlas-web-mono bg-pebble-50"
                                 style={{
                                     transition: "border-radius 0.45s ease-out, background-color 0.45s ease-out",
                                     backgroundColor: "#fbfdf6",
@@ -235,13 +162,22 @@ export default function Navbar() {
                                 </div>
                             </button>
 
-                            <button className="inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-[20px] cursor-pointer transition-colors shrink-0 h-10 bg-meadow-700 text-meadow-50 hover:bg-meadow-700/90 atlas-web-mono px-6">
+                            {/* Start for Free - Always Visible on Mobile */}
+                            <button className="inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-[20px] cursor-pointer transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none shrink-0 h-10 bg-meadow-700 text-meadow-50 hover:bg-meadow-700/90 ring-offset-meadow-50 focus-visible:ring-meadow-700 atlas-web-mono px-6"
+                                style={{
+                                    paddingTop: "20px",
+                                    paddingBottom: "20px",
+                                    paddingLeft: "22px",
+                                    paddingRight: "22px",
+                                    fontSize: "14.5px",
+                                    fontStyle: "normal",
+                                }}>
                                 START FOR FREE
                             </button>
 
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="-mr-3 flex size-12 cursor-pointer items-center justify-center"
+                                className="-mr-3 flex size-12 cursor-pointer items-center justify-center text-black"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="4" x2="20" y1="12" y2="12"></line>
@@ -263,11 +199,14 @@ export default function Navbar() {
                             transition={{ duration: 0.2 }}
                             className="overflow-clip shadow-[0_1px_0_0_transparent] transition-shadow duration-200"
                         >
-                            <div className="bg-[#F5F1E8] px-6 lg:px-8 flex flex-col py-4 pt-16">
+                            <div className="bg-white text-black px-6 lg:px-8 flex flex-col py-4 pt-[104px]"
+                                style={{
+                                    fontFamily: 'akkurat, "akkurat Fallback", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+                                }}>
                                 <div className="flex flex-col gap-4 py-2">
                                     <a href="#products">
-                                        <span className="font-medium text-base">Products</span>
-                                        <div className="text-sm text-[#6B6B6B]">Across your journey</div>
+                                        <span className="font-semibold text-base">Products</span>
+                                        <div className="text-sm">Across your journey</div>
                                     </a>
 
                                     <div className="flex flex-col divide-y divide-[#E5E1D8] border-y border-[#E5E1D8]">
@@ -286,10 +225,10 @@ export default function Navbar() {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col justify-center">
-                                                <div className="text-base">Iterate</div>
-                                                <div className="text-sm text-[#6B6B6B]">Sketch, test and refine</div>
+                                                <div className="font-semibold text-base">Iterate</div>
+                                                <div className="text-sm">Sketch, test and refine</div>
                                             </div>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#6B6B6B] mr-1 ml-auto h-4 w-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 ml-auto h-4 w-4">
                                                 <path d="m9 18 6-6-6-6"></path>
                                             </svg>
                                         </a>
@@ -304,10 +243,10 @@ export default function Navbar() {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col justify-center">
-                                                <div className="text-base">Evaluate</div>
-                                                <div className="text-sm text-[#6B6B6B]">Reflect and measure</div>
+                                                <div className="font-semibold text-base">Evaluate</div>
+                                                <div className="text-sm">Reflect and measure</div>
                                             </div>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#6B6B6B] mr-1 ml-auto h-4 w-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 ml-auto h-4 w-4">
                                                 <path d="m9 18 6-6-6-6"></path>
                                             </svg>
                                         </a>
@@ -322,10 +261,10 @@ export default function Navbar() {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col justify-center">
-                                                <div className="text-base">Deploy</div>
-                                                <div className="text-sm text-[#6B6B6B]">From draft to live</div>
+                                                <div className="font-semibold text-base">Deploy</div>
+                                                <div className="text-sm">From draft to live</div>
                                             </div>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#6B6B6B] mr-1 ml-auto h-4 w-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 ml-auto h-4 w-4">
                                                 <path d="m9 18 6-6-6-6"></path>
                                             </svg>
                                         </a>
@@ -343,20 +282,20 @@ export default function Navbar() {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col justify-center">
-                                                <div className="text-base">Monitor</div>
-                                                <div className="text-sm text-[#6B6B6B]">Insights in real time</div>
+                                                <div className="font-semibold text-base">Monitor</div>
+                                                <div className="text-sm">Insights in real time</div>
                                             </div>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#6B6B6B] mr-1 ml-auto h-4 w-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 ml-auto h-4 w-4">
                                                 <path d="m9 18 6-6-6-6"></path>
                                             </svg>
                                         </a>
                                     </div>
                                 </div>
 
-                                <div className="font-medium text-base py-2">
+                                <div className="font-semibold text-base py-2">
                                     <a href="#pricing">Pricing</a>
                                 </div>
-                                <div className="font-medium text-base py-2">
+                                <div className="font-semibold text-base py-2">
                                     <a href="#blog">Blog</a>
                                 </div>
                             </div>

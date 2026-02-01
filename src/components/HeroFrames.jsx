@@ -15,9 +15,10 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  */
 
 export default function HeroFrames({
-    totalFrames = 281,
     frameBasePath = '/adaline_frames',
 }) {
+    const totalFrames = 281;
+    const startFrame = 1; // Start from frame 1 as per requests
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -115,7 +116,7 @@ export default function HeroFrames({
         // --- DIMENSIONS & POSITIONING CONFIG ---
         // Adjust these to change how the image fits
         const desktopScale = 1.25;  // Scale for desktop
-        const mobileScale = 1.2;  // Scale for mobile
+        const mobileScale = 1.2;    // Scale for mobile
 
         const desktopOffsetY = -0.5; // Pixels to move up/down on desktop
         const mobileOffsetY = 0;     // Pixels to move up/down on mobile (e.g. 40)
@@ -167,7 +168,7 @@ export default function HeroFrames({
             frameIndexRef.current = frameIndex;
             setCurrentFrame(frameIndex);
 
-            const preloadRange = 6; // Reduced to prevent network congestion
+            const preloadRange = 35; // Increased buffer to prevent "stucking"
             preloadFrames(
                 Math.max(2, frameIndex - preloadRange),
                 Math.min(totalFrames, frameIndex + preloadRange)
@@ -207,7 +208,7 @@ export default function HeroFrames({
         let img = loadedImagesRef.current[currentFrame];
 
         if (!img) {
-            const range = 6; // ✅ FIXED
+            const range = 15; // Wider fallback search
             for (let i = 1; i <= range; i++) {
                 if (loadedImagesRef.current[currentFrame - i]) {
                     img = loadedImagesRef.current[currentFrame - i];

@@ -20,6 +20,7 @@
   --color-pebble-100: #E5E1D8;
   --color-pebble-200: #D4C5B0;
   --color-pebble-400: #B0A090;
+  --animate-spin-mixed: spin-mixed 2s linear infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -92,6 +93,7 @@ body {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -100,4 +102,18 @@ body {
 .animate-marquee {
   animation: marquee 20s linear infinite;
   width: max-content;
+}
+
+@keyframes spin-mixed {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  8% {
+    transform: rotate(40deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
